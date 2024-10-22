@@ -132,6 +132,7 @@
     <ClCompile Include="Template fondamentaux.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Exo3.h" />
     <ClInclude Include="Inventory.h" />
     <ClInclude Include="Items.h" />
   </ItemGroup>

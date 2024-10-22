@@ -3,15 +3,36 @@
 #include <algorithm>
 #include <string>
 
-Inventory::Inventory(): m_itemsList(std::vector<Items*>()) {}
+Inventory::Inventory(): m_itemsList(std::vector<Items*>()), m_maxCapacity(100), m_totalWeight(0) {}
+
+Inventory::Inventory(int maxCapacity): m_itemsList(std::vector<Items*>()), m_maxCapacity(maxCapacity), m_totalWeight(0) {}
 
 Inventory::~Inventory() {}
 
 void Inventory::AddItem(Items* pItem)
 {
+	if (m_totalWeight + pItem->GetWeight() > m_maxCapacity)
+	{
+		std::cout << *pItem << " too heavy for the inventory, max capacity is " << m_maxCapacity << " and currently total item's weight is " << m_totalWeight << std::endl;
+		char force;
+		std::cout << "Do you really want to add it to your inventory ? (y/n) ";
+		std::cin >> force;
+		switch (force)
+		{
+			case 'y':
+				EmptyInventory(pItem);
+				break;
+			case 'n':
+				return;
+			default:
+				return;
+		}
+	}
+
 	m_itemsList.push_back(pItem);
 	pItem->m_IDInList = m_itemsList.size() - 1;
 	std::cout << *pItem << " added to inventory" << std::endl;
+	m_totalWeight += pItem->GetWeight();
 }
 
 void Inventory::DeleteItemByName(const char* name, bool destroyDuplication)
@@ -20,7 +41,8 @@ void Inventory::DeleteItemByName(const char* name, bool destroyDuplication)
 	{
 		if (m_itemsList[i]->GetName() == name)
 		{
-			std::cout << *m_itemsList[i] << " deleted. " << std::endl;
+			std::cout << *(m_itemsList[i]) << " deleted. " << std::endl;
+			m_totalWeight -= m_itemsList[i]->GetWeight();
 			m_itemsList.erase(m_itemsList.begin() + i);
 			if (destroyDuplication == false)
 				return;
@@ -41,7 +63,7 @@ bool CompareName(Items* name1, Items* name2)
 		return false;
 	int index = 0;
 
-	while ( index < ( sizeof(name1->GetName()) / sizeof(*name1->GetName()) ) && name1->GetName()[index] == name2->GetName()[index])
+	while (  ( index < strlen(name1->GetName()) - 1 || index < strlen(name2->GetName()) - 1 ) && name1->GetName()[index] == name2->GetName()[index])
 		index++;
 
 	return name1->GetName()[index] < name2->GetName()[index];
@@ -53,127 +75,88 @@ void Inventory::SortByName()
 	PrintInventory();
 }
 
-void Inventory::SortByWeightAscending()
+void Inventory::SortByWeight(bool descending)
 {
-	for (int i = 0; i < m_itemsList.size();i++)
-
-		for (int j = i+1; j < m_itemsList.size(); j++)
+	std::sort(m_itemsList.begin(), m_itemsList.end(),
+		[=](Items* pItem1, Items* pItem2)
 		{
-			if (m_itemsList[i]->GetWeight() > m_itemsList[j]->GetWeight())
-			{
-				Items* save = m_itemsList[i];
-				m_itemsList[i] = m_itemsList[j];
-				m_itemsList[j] = save;
-			}
+			return descending ? pItem1->GetWeight() > pItem2->GetWeight() : pItem1->GetWeight() < pItem2->GetWeight();
 		}
+	);
 	
 	PrintInventory();
 }
 
-void Inventory::SortByWeightDescending()
-{
-	for (int i = 0; i < m_itemsList.size(); i++)
 
-		for (int j = i + 1; j < m_itemsList.size(); j++)
-		{
-			if (m_itemsList[i]->GetWeight() < m_itemsList[j]->GetWeight())
-			{
-				Items* save = m_itemsList[i];
-				m_itemsList[i] = m_itemsList[j];
-				m_itemsList[j] = save;
-			}
-		}
-
-	PrintInventory();
-}
 
 void Inventory::PrintInventory()
 {
 	std::cout << std::endl;
 	for (int i = 0; i < m_itemsList.size(); i++)
 	{
-		std::cout << *m_itemsList[i];
+		std::cout << *(m_itemsList[i]);
 		std::cout << std::endl;
 	}
 	std::cout << std::endl;
 }
 
-void Inventory::FilterBy(Filter filter, int param)
+void Inventory::ShowInventoryStats(int weight)
 {
-	std::cout << "FILTER : ";
-	switch (filter)
+	std::cout << "Stats : " << std::endl;
+	std::cout << " Average of items' weight in Inventory : " << CalculateAverageWeight() << std::endl;
+	std::cout << " Total Inventory weight : " << CalculateTotalWeight() << std::endl;
+	std::cout << " Items that weigh more than " << weight << " : " << ItemWeightMore(weight) << std::endl;
+}
+
+float Inventory::CalculateAverageWeight()
+{
+	float average = 0; 
+	int itemCount = 0;
+	for (int i = 0; i < m_itemsList.size(); i++)
 	{
-
-	case heavier_than:
-		std::cout << "Heavier than " << param << std::endl;
-		for (int i = 0; i < m_itemsList.size(); i++)
-		{
-			if (m_itemsList[i]->GetWeight() > param)
-			{
-				std::cout << *m_itemsList[i];
-				std::cout << std::endl;
-			}
-		}
-		break;
-
-	case lighter_than:
-		std::cout << "lighter than " << param << std::endl;
-		for (int i = 0; i < m_itemsList.size(); i++)
-		{
-			if (m_itemsList[i]->GetWeight() < param)
-			{
-				std::cout << *m_itemsList[i];
-				std::cout << std::endl;
-			}
-		}
-		break;
-
-	case weighs:
-		std::cout << "weighs " << param << std::endl;
-		for (int i = 0; i < m_itemsList.size(); i++)
-		{
-			if (m_itemsList[i]->GetWeight() == param)
-			{
-				std::cout << *m_itemsList[i];
-				std::cout << std::endl;
-			}
-		}
-		break;
-
-	case name_start_with:
-
-		std::cout << "name start with " << (char)param << std::endl;
-		for (int i = 0; i < m_itemsList.size(); i++)
-		{
-			if (m_itemsList[i]->GetName()[0] == param)
-			{
-				std::cout << *m_itemsList[i];
-				std::cout << std::endl;
-			}
-		}
-		break;
-
-	case name_end_with:
-
-		std::cout << "name end with " << (char)param << std::endl;
-		for (int i = 0; i < m_itemsList.size(); i++)
-		{
-			if (m_itemsList[i]->GetName()[strlen(m_itemsList[i]->GetName())-1] == param)
-			{
-				std::cout << *m_itemsList[i];
-				std::cout << std::endl;
-			}
-		}
-
-		break;
-
-	default:
-		PrintInventory();
-		std::cout << "Filter Unknow";
-		break;
+		average += m_itemsList[i]->GetWeight();
+		itemCount += 1;
 	}
+	average /= itemCount;
+	return average;
+}
 
+int Inventory::CalculateTotalWeight()
+{
+	return m_totalWeight;
+}
+
+int Inventory::ItemWeightMore(int weight)
+{
+	int total = 0;
+	for (int i = 0; i < m_itemsList.size() ; i++)
+		if (m_itemsList[i]->GetWeight() > weight)
+			total += 1;
+	return total;
+}
+
+void Inventory::FilterBy(std::function<bool(Items*)> filter)
+{
+	std::cout << std::endl;
+	std::vector<Items*> filteredItems = std::vector<Items*>(m_itemsList.size());
+	std::vector<Items*>::iterator it = std::copy_if(m_itemsList.begin(), m_itemsList.end(), filteredItems.begin(), filter);
+	filteredItems.resize(std::distance(filteredItems.begin(), it));
+	for (int i = 0; i < filteredItems.size(); i++)
+	{
+		std::cout << *(filteredItems[i]) << std::endl;;
+	}
 	std::cout << std::endl;
 }
 
-
+void Inventory::EmptyInventory(Items* pItem)
+{
+	int weightToEmpty = pItem->GetWeight();
+	SortByWeight();
+	for (int i = 0; i < m_itemsList.size(); i++)
+	{
+		weightToEmpty -= m_itemsList[i]->GetWeight();
+		DeleteItemByName(m_itemsList[i]->GetName());
+		if (weightToEmpty <= 0)
+			return;
+	}
+}

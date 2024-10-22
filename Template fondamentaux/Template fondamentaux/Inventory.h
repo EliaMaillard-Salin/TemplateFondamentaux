@@ -1,21 +1,14 @@
 #pragma once
 #include <vector>
+#include <functional>
 #include "Items.h"
 
 class Inventory
 {
 public:
 
-	enum Filter
-	{
-		heavier_than,
-		lighter_than,
-		weighs,
-		name_start_with,
-		name_end_with,
-	};
-
-	Inventory(); 
+	Inventory();
+	Inventory(int maxCapacity);
 	~Inventory();
 
 	void AddItem(Items* pItem);
@@ -28,16 +21,24 @@ public:
 	//Items* FindItemByID(int& ID );
 
 	void SortByName();
-	void SortByWeightAscending();
-	void SortByWeightDescending();
+	void SortByWeight(bool descending = false);
 
 	void PrintInventory();
 
-	
-	void FilterBy(Filter filter, int param);
+	void FilterBy(std::function<bool(Items*)> filter);
+
+	void ShowInventoryStats(int weight = 0);
+
+private:
+	float CalculateAverageWeight();
+	int CalculateTotalWeight();
+	int ItemWeightMore(int weight);
+	void EmptyInventory(Items* pItem);
 
 private: 
 	std::vector<Items*> m_itemsList;
+	int m_maxCapacity;
+	int m_totalWeight;
 };
 
 bool CompareName(Items* name1, Items* name2);

@@ -6,9 +6,60 @@
 #include <list>
 #include <set>
 #include <algorithm>
+#include <stdlib.h>
+#include <time.h>
 
 #include "Inventory.h"
 #include "Items.h"
+
+void Exo2()
+{
+
+}
+
+template <typename T>
+T GetMinimum(T arr, int arrSize)
+{
+    T minimumValue = &arr[0];
+    for (int i = 0; i < arrSize; i++)
+    {
+        if (arr[i] < *minimumValue)
+            minimumValue = &arr[i];
+    }
+    return minimumValue;
+}
+
+template <typename T>
+int Exo3_2(std::vector<T> vect)
+{
+    vect.push_back(T());
+    return vect.size();
+}
+
+template <typename T>
+T Exo3_3(std::list<T> list)
+{
+    T sum = T();
+    for (T i : list)
+        sum += i;
+    return sum;
+}
+
+template <typename T>
+T Exo3_4(T* arr, int arrSize)
+{
+    T average = T();
+    for (int i = 0; i < arrSize; i++)
+        average += arrSize[i];
+
+    if (std::is_same<T, int>::value)
+    {
+        return static_cast<double>(average/arrSize);
+    }
+
+    return average /= arrSize;
+}
+
 
 
 int main()
@@ -74,36 +125,49 @@ int main()
 
 
 #pragma region EXO1BIS
-    Inventory* pInventory = new Inventory();
-    Items* Sword = new Items("Sword", 5);
-    Items* Shield = new Items("Shield", 12);
-    Items* Potion = new Items("Potion", 2);
-    Items* Helmet = new Items("Helmet", 6);
-    Items* ChestPlate = new Items("ChestPlate", 15);
+    //Inventory* pInventory = new Inventory();
+    //Items* Sword = new Items("Sword", 5);
+    //Items* Shield = new Items("Shield", 12);
+    //Items* Potion = new Items("Potion", 2);
+    //Items* Helmet = new Items("Helmet", 6);
+    //Items* ChestPlate = new Items("ChestPlate", 15);
+    //Items* GOLD = new Items("GOLD", 80);
 
-    pInventory->AddItem(Shield);
-    pInventory->AddItem(Potion);
-    pInventory->AddItem(Sword);
-    pInventory->AddItem(Sword);
-    pInventory->AddItem(Helmet);
-    pInventory->AddItem(ChestPlate);
+    //pInventory->AddItem(Shield);
+    //pInventory->AddItem(Potion);
+    //pInventory->AddItem(Sword);
+    //pInventory->AddItem(Sword);
+    //pInventory->AddItem(Helmet);
+    //pInventory->AddItem(ChestPlate);
+    //pInventory->AddItem(GOLD);
 
-    pInventory->SortByWeightAscending();
-    std::cout << std::endl;
+    //pInventory->SortByWeight(true);
+    //pInventory->SortByWeight();
+    //std::cout << std::endl;
 
-    pInventory->DeleteItemByName("Potion");
+    //pInventory->DeleteItemByName("Potion");
 
-    std::cout << std::endl;
-    pInventory->SortByName();
+    //std::cout << std::endl;
+    //pInventory->SortByName();
 
-    pInventory->FilterBy(Inventory::heavier_than, 5);
-    pInventory->FilterBy(Inventory::lighter_than, 7);
-    pInventory->FilterBy(Inventory::weighs, 15);
-    pInventory->FilterBy(Inventory::name_start_with, 'S');
-    pInventory->FilterBy(Inventory::name_end_with, 'e');
+    //pInventory->ShowInventoryStats(5);
+    //
+    //pInventory->FilterBy([](Items* item)->bool { return item->GetWeight() > 5; });
+
+    //pInventory->PrintInventory();
 
 #pragma endregion
 
+
+#pragma region Exo2
+    srand(time(NULL));
+    Exo2();
+#pragma endregion
+
+
+float aa[] = {5.65,8.25,5.2,10.0,90.65  };
+std::list<float> list(10,50.555);
+std::cout << Exo3_4(aa,5);
 }
 
 
