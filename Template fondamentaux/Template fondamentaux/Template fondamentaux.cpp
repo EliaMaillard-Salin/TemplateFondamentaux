@@ -12,10 +12,35 @@
 #include "Inventory.h"
 #include "Items.h"
 
-void Exo2()
+template <typename T>
+double CalculStatistiques(T arr[], int size)
 {
-
+    T somme = 0;
+    for (int i = 0; i < size; i++)
+    {
+        somme += arr[i];
+    }
+    return static_cast<double>(somme) / size;
 }
+
+template <>
+double CalculStatistiques(float arr[], int size) {
+    double somme = 0;
+    for (int i = 0; i < size; i++)
+    {
+        somme += arr[i];
+    }
+    double moyenne = static_cast<double>(somme) / size;
+
+    double variance = 0;
+    for (int i = 0; i < size; i++)
+    {
+        variance += (arr[i] - moyenne) * (arr[i] - moyenne);
+    }
+    variance /= size;
+    return variance;
+}
+
 
 template <typename T>
 T GetMinimum(T arr, int arrSize)
@@ -30,9 +55,9 @@ T GetMinimum(T arr, int arrSize)
 }
 
 template <typename T>
-int Exo3_2(std::vector<T> vect)
+int Exo3_2(std::vector<T> vect, T element)
 {
-    vect.push_back(T());
+    vect.push_back(element);
     return vect.size();
 }
 
@@ -46,20 +71,24 @@ T Exo3_3(std::list<T> list)
 }
 
 template <typename T>
-T Exo3_4(T* arr, int arrSize)
+double Exo3_4(T* arr, int arrSize)
 {
     T average = T();
     for (int i = 0; i < arrSize; i++)
-        average += arrSize[i];
+        average += arr[i];
 
-    if (std::is_same<T, int>::value)
-    {
-        return static_cast<double>(average/arrSize);
-    }
-
-    return average /= arrSize;
+    return static_cast<double>(average/arrSize);
 }
 
+template < >
+double Exo3_4(int* arr, int arrSize)
+{
+    int average = 0;
+    for (int i = 0; i < arrSize; i++)
+        average += arr[i];
+
+    return static_cast<double>(average / arrSize);
+}
 
 
 int main()
@@ -168,6 +197,10 @@ int main()
 float aa[] = {5.65,8.25,5.2,10.0,90.65  };
 std::list<float> list(10,50.555);
 std::cout << Exo3_4(aa,5);
+
+
+
+
 }
 
 
